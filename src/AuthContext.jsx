@@ -12,7 +12,31 @@ export function AuthProvider({ children }) {
 
   // TODO: authenticate
 
-  const value = { location };
+   async function signup(name) {
+    const response = await fetch(`${API}/signup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name }),
+    });
+    const data = await response.json();
+    setToken(data.token);
+    setLocation("TABLET");
+  }
+
+  async function authenticate() {
+    if (!token) throw new Error("No token in state.");
+
+    const response = await fetch(`${API}/authenticate`, {
+      method: "GET",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!response.ok) throw new Error("Authentication failed.");
+
+    setLocation("TUNNEL");
+  } 
+
+  const value = { location, signup, authenticate };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
